@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yearly Salary Projector & Tax Planner</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #F9EBD8; /* Updated Background Color */
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* --- Password Screen --- */
+    #password-screen {
+      background: #FCF7F2;
+      padding: 30px 40px;
+      border-radius: 8px;
+      border: 1px solid #D4A373;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      z-index: 100;
+      transition: opacity 0.5s ease;
+    }
+    #password-screen h2 { color: #4A3C31; margin-bottom: 20px; font-size: 22px; }
+    #password-screen input {
+      padding: 10px; font-size: 16px; border: 1px solid #CDBA9E; border-radius: 4px; width: 80%;
+      text-align: center; letter-spacing: 2px; background: #FFF; color: #4A3C31;
+    }
+    #password-screen button {
+      margin-top: 15px; padding: 10px 20px; font-size: 16px; background-color: #D4A373;
+      color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 85%;
+    }
+    #password-screen button:hover { background-color: #B98B5B; }
+    #error-msg { color: #BC4749; font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
+
+    /* --- Loading Screen with Rupee Spinner --- */
+    #loading-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      position: absolute;
+    }
+    .spinner-container {
+      position: relative; 
+      width: 80px; 
+      height: 80px; 
+      margin-bottom: 15px;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+    }
+    .spinner-ring {
+      position: absolute; 
+      width: 100%; 
+      height: 100%;
+      box-sizing: border-box;
+      border: 5px solid rgba(212, 163, 115, 0.3); /* Lighter theme color */
+      border-top: 5px solid #137333; /* Green indicator */
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .spinner-text {
+      position: relative;
+      font-size: 34px; 
+      font-weight: bold; 
+      color: #4A3C31;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .loading-text { font-size: 16px; color: #6B5B4E; font-weight: bold; letter-spacing: 1px; }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* --- Iframe Container --- */
+    #app-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none; 
+      opacity: 0;
+      transform: translateY(100px); 
+      transition: all 1s ease-in-out;
+      background: transparent;
+      overflow: hidden;
+    }
+    
+    #app-container.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    iframe {
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Protection Screen -->
+  <div id="password-screen">
+    <h2>Secure Access</h2>
+    <input type="password" id="pass-input" placeholder="Enter PIN">
+    <button onclick="checkPassword()">Unlock System</button>
+    <div id="error-msg">Incorrect PIN. Try again.</div>
+  </div>
+
+  <!-- Loading Spinner Screen -->
+  <div id="loading-screen">
+    <div class="spinner-container">
+      <div class="spinner-ring"></div>
+      <div class="spinner-text">₹</div>
+    </div>
+    <div class="loading-text">Loading Workspace...</div>
+  </div>
+
+  <!-- Apps Script Iframe Container -->
+  <div id="app-container">
+    <iframe id="gas-iframe" src="" allow="clipboard-read; clipboard-write"></iframe>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytG_qEDub_fQXI8Ykel7jYG0tYMu2myBpIW4yCBDhICGDltmh3XOPb2X6jtnFoSrzytw/exec";
+
+    function checkPassword() {
+      var pass = document.getElementById("pass-input").value;
+      if (pass === "1729") {
+        document.getElementById("password-screen").style.display = "none";
+        document.getElementById("loading-screen").style.display = "flex";
+        
+        var iframe = document.getElementById("gas-iframe");
+        iframe.src = APPS_SCRIPT_URL;
+
+        iframe.onload = function() {
+          setTimeout(function() {
+            document.getElementById("loading-screen").style.display = "none";
+            var appContainer = document.getElementById("app-container");
+            appContainer.style.display = "block"; 
+            
+            setTimeout(function(){
+              appContainer.classList.add("show");
+            }, 50);
+          }, 1500); 
+        };
+      } else {
+        document.getElementById("error-msg").style.display = "block";
+      }
+    }
+
+    document.getElementById("pass-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        checkPassword();
+      }
+    });
+  </script>
+
+</body>
+</html>
